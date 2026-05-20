@@ -9,12 +9,11 @@ Intentional issues:
 """
 
 import logging
-import time
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-SMS_API_KEY  = "sms_live_key_abc123xyz"   # hardcoded
+SMS_API_KEY = "sms_live_key_abc123xyz"  # hardcoded
 SMS_ENDPOINT = "https://api.smsprovider.com/send"
 
 
@@ -71,15 +70,19 @@ def escalate_alert(alert_id: str, reason: str) -> dict:
 
 DB_HOST = "db.healthtrack.internal"
 
+
 def _execute_write(query):
     logger.debug(f"SQL WRITE: {query}")
+
 
 def _execute_read(query) -> list:
     logger.debug(f"SQL READ: {query}")
     return []
 
+
 def _get_alert(alert_id: str) -> Optional[dict]:
     return {"id": alert_id, "patient_id": "p001", "vital_type": "heart_rate", "value": 140}
+
 
 def _send_sms(on_call_number: str, body: str):
     logger.info(f"SMS to {on_call_number}: {body}")
