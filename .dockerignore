@@ -1,0 +1,26 @@
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment files — never bake secrets into the image
+.env
+.env.*
+
+# Version control
+.git/
+.gitignore
+
+# Test infrastructure — not needed at runtime
+tests/__pycache__/
+.pytest_cache/
+htmlcov/
+
+# Skill runner output — can be large, never runtime deps
+skills/*/examples/
+
+# Dev/tooling artifacts
+.github/
+scripts/
+docs/
+*.md
