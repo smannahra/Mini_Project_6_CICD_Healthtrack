@@ -1,0 +1,159 @@
+name: HealthTrack API CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  # ── 1. Lint ────────────────────────────────────────────────────────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-lint-${{ hashFiles('requirements*.txt') }}
+          restore-keys: ${{ runner.os }}-pip-lint-
+
+      - name: Install linters
+        run: pip install flake8 black
+
+      - name: flake8
+        run: flake8 app/ tests/
+
+      - name: black (check only)
+        run: black --check app/ tests/
+
+  # ── 2. Test ────────────────────────────────────────────────────────────────
+  test:
+    name: Test
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-test-${{ hashFiles('requirements*.txt') }}
+          restore-keys: ${{ runner.os }}-pip-test-
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest pytest-cov
+
+      - name: Run tests with coverage
+        run: pytest tests/ --cov=app --cov-report=xml --cov-fail-under=80
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.xml
+          retention-days: 14
+
+  # ── 3. Security ────────────────────────────────────────────────────────────
+  security:
+    name: Security
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-security-${{ hashFiles('requirements*.txt') }}
+          restore-keys: ${{ runner.os }}-pip-security-
+
+      - name: Install security tools
+        run: pip install bandit safety
+
+      - name: bandit (medium severity and above)
+        run: bandit -r app/ -ll
+
+      - name: safety check
+        run: safety check -r requirements.txt
+
+  # ── 4. AI Skills ──────────────────────────────────────────────────────────
+  ai-skills:
+    name: AI Skills
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-ai-skills-${{ hashFiles('requirements*.txt') }}
+          restore-keys: ${{ runner.os }}-pip-ai-skills-
+
+      - name: Install anthropic SDK
+        run: pip install anthropic
+
+      - name: Run security-audit skill
+        id: audit
+        run: |
+          python plugins/run_skill.py security-audit \
+            --scope app/vitals.py \
+            --context CLAUDE.md \
+            --no-save \
+            | tee audit_output.txt
+
+      - name: Block merge on CRITICAL findings
+        run: |
+          if grep -q "CRITICAL" audit_output.txt; then
+            echo "::error::Security audit found CRITICAL findings — merge blocked. Review audit_output.txt for details."
+            exit 1
+          fi
+
+      - name: Post summary to job summary
+        if: always()
+        run: |
+          echo "## AI Security Audit Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Scope:** \`app/vitals.py\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f audit_output.txt ]; then
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            cat audit_output.txt >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            if grep -q "CRITICAL" audit_output.txt; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "> [!CAUTION]" >> $GITHUB_STEP_SUMMARY
+              echo "> CRITICAL findings detected — merge blocked." >> $GITHUB_STEP_SUMMARY
+            else
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "> [!NOTE]" >> $GITHUB_STEP_SUMMARY
+              echo "> No CRITICAL findings. Merge permitted." >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "_Audit output not available._" >> $GITHUB_STEP_SUMMARY
+          fi
