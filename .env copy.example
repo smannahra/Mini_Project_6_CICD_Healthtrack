@@ -1,0 +1,17 @@
+# Flask
+FLASK_ENV=development
+FLASK_DEBUG=1
+SECRET_KEY=change-me-in-production
+
+# Database
+DB_HOST=db
+DB_PORT=5432
+DB_NAME=healthtrack
+DB_USER=healthtrack_user
+DB_PASSWORD=change-me-in-production
+
+# Cache
+REDIS_URL=redis://cache:6379/0
+
+# AI Skills
+ANTHROPIC_API_KEY=sk-ant-your-key-here
