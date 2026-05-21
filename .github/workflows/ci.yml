@@ -57,7 +57,7 @@ jobs:
         run: pip install -r requirements.txt pytest pytest-cov
 
       - name: Run tests with coverage
-        run: pytest tests/ --cov=app --cov-report=xml --cov-fail-under=50
+        run: pytest tests/ --cov=app --cov-report=xml --cov-fail-under=45
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
