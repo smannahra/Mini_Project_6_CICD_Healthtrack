@@ -84,8 +84,9 @@ def get_patient_vitals(patient_id: str, vital_type: Optional[str] = None,
     return _execute_read(query)
 
 
-def calculate_alert_threshold(vital_type: str, patient_age: int,
-                               has_condition: bool = False) -> dict:
+def calculate_alert_threshold(
+    vital_type: str, patient_age: int, has_condition: bool = False
+) -> dict:
     """
     Return alert thresholds (low, high) for a vital type.
     Age and condition adjustments applied.
@@ -107,10 +108,10 @@ def calculate_alert_threshold(vital_type: str, patient_age: int,
     # Age adjustment — no tests for boundary conditions
     if patient_age > 65:
         thresholds["high"] += 5
-        thresholds["low"]  -= 3
+        thresholds["low"] -= 3
     elif patient_age < 18:
         thresholds["high"] += 10
-        thresholds["low"]  -= 5
+        thresholds["low"] -= 5
 
     # Condition adjustment
     if has_condition:
