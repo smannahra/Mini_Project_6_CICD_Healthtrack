@@ -86,7 +86,7 @@ jobs:
           restore-keys: ${{ runner.os }}-pip-security-
 
       - name: Install security tools
-        run: pip install bandit safety
+        run: pip install bandit safety==2.3.5
 
       - name: bandit (medium severity and above)
         run: bandit -r app/ -ll
