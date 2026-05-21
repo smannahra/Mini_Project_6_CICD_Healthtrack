@@ -2,6 +2,7 @@
 tests/test_vitals.py
 Existing tests — sparse. Students will use the Test Agent to find gaps.
 """
+
 import os
 import sys
 from unittest.mock import patch

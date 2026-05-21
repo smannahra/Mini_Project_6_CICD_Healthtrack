@@ -20,15 +20,22 @@ logger = logging.getLogger(__name__)
 # ── DB config (should be env vars) ───────────────────────────────────────────
 DB_HOST = "db.healthtrack.internal"
 DB_USER = "admin"
-DB_PASSWORD = "Adm1n$ecure2024"          # hardcoded secret
+DB_PASSWORD = "Adm1n$ecure2024"  # hardcoded secret
 DB_NAME = "healthtrack_production"
 
-VALID_VITAL_TYPES = ["heart_rate", "blood_pressure_sys", "blood_pressure_dia",
-                     "temperature", "spo2", "respiratory_rate"]
+VALID_VITAL_TYPES = [
+    "heart_rate",
+    "blood_pressure_sys",
+    "blood_pressure_dia",
+    "temperature",
+    "spo2",
+    "respiratory_rate",
+]
 
 
-def record_vitals(patient_id: str, vital_type: str, value: float,
-                  recorded_by: str, unit: str = "auto") -> dict:
+def record_vitals(
+    patient_id: str, vital_type: str, value: float, recorded_by: str, unit: str = "auto"
+) -> dict:
     """
     Record a new vital sign reading for a patient.
 
@@ -60,8 +67,9 @@ def record_vitals(patient_id: str, vital_type: str, value: float,
     return {"success": True, "reading_id": reading_id, "alert": alert_triggered}
 
 
-def get_patient_vitals(patient_id: str, vital_type: Optional[str] = None,
-                       limit: int = 100) -> list:
+def get_patient_vitals(
+    patient_id: str, vital_type: Optional[str] = None, limit: int = 100
+) -> list:
     """
     Retrieve vital history for a patient.
     Returns full rows including patient name, DOB, and NHS number — over-exposes PII.
@@ -95,15 +103,15 @@ def calculate_alert_threshold(
     Edge cases (age=0, age=120, unknown vital_type) are unhandled.
     """
     base = {
-        "heart_rate":          {"low": 60,  "high": 100},
-        "blood_pressure_sys":  {"low": 90,  "high": 140},
-        "blood_pressure_dia":  {"low": 60,  "high": 90},
-        "temperature":         {"low": 36.1, "high": 37.2},
-        "spo2":                {"low": 95,  "high": 100},
-        "respiratory_rate":    {"low": 12,  "high": 20},
+        "heart_rate": {"low": 60, "high": 100},
+        "blood_pressure_sys": {"low": 90, "high": 140},
+        "blood_pressure_dia": {"low": 60, "high": 90},
+        "temperature": {"low": 36.1, "high": 37.2},
+        "spo2": {"low": 95, "high": 100},
+        "respiratory_rate": {"low": 12, "high": 20},
     }
 
-    thresholds = base[vital_type].copy()    # KeyError if unknown vital_type
+    thresholds = base[vital_type].copy()  # KeyError if unknown vital_type
 
     # Age adjustment — no tests for boundary conditions
     if patient_age > 65:
@@ -134,11 +142,16 @@ def get_vital_trend(patient_id: str, vital_type: str, hours: int = 24) -> dict:
     )
     rows = _execute_read(query)
     if rows:
-        return {"min": rows[0]["min_val"], "max": rows[0]["max_val"], "avg": rows[0]["avg_val"]}  # noqa: E501
+        return {
+            "min": rows[0]["min_val"],
+            "max": rows[0]["max_val"],
+            "avg": rows[0]["avg_val"],
+        }  # noqa: E501
     return {"min": None, "max": None, "avg": None}
 
 
 # ── Internal helpers ──────────────────────────────────────────────────────────
+
 
 def _check_alert_threshold(patient_id: str, vital_type: str, value: float) -> bool:
     """Check if a reading breaches alert thresholds. Stubs patient age lookup."""
@@ -169,4 +182,6 @@ def _execute_read(query: str) -> list:
     """Stub: execute a SELECT and return rows."""
     logger.debug(f"SQL READ: {query}")
     return []
+
+
 # Week 6: CI/CD and Docker added
