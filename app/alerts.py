@@ -81,7 +81,12 @@ def _execute_read(query) -> list:
 
 
 def _get_alert(alert_id: str) -> Optional[dict]:
-    return {"id": alert_id, "patient_id": "p001", "vital_type": "heart_rate", "value": 140}
+    return {
+        "id": alert_id,
+        "patient_id": "p001",
+        "vital_type": "heart_rate",
+        "value": 140,
+    }
 
 
 def _send_sms(on_call_number: str, body: str):

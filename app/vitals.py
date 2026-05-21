@@ -48,7 +48,7 @@ def record_vitals(patient_id: str, vital_type: str, value: float,
     # SQL injection: f-string used directly
     query = (
         f"INSERT INTO vitals (patient_id, vital_type, value, recorded_by, unit, ts) "
-        f"VALUES ('{patient_id}', '{vital_type}', {value}, '{recorded_by}', '{unit}', NOW())"
+        f"VALUES ('{patient_id}', '{vital_type}', {value}, '{recorded_by}', '{unit}', NOW())"  # noqa: E501
     )
     reading_id = _execute_write(query)
 
@@ -134,7 +134,7 @@ def get_vital_trend(patient_id: str, vital_type: str, hours: int = 24) -> dict:
     )
     rows = _execute_read(query)
     if rows:
-        return {"min": rows[0]["min_val"], "max": rows[0]["max_val"], "avg": rows[0]["avg_val"]}
+        return {"min": rows[0]["min_val"], "max": rows[0]["max_val"], "avg": rows[0]["avg_val"]}  # noqa: E501
     return {"min": None, "max": None, "avg": None}
 
 

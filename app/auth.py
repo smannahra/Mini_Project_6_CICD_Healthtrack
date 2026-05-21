@@ -35,7 +35,7 @@ def login(username: str, password: str) -> Optional[str]:
         return None
 
     token = _make_token(user["id"])
-    TOKEN_STORE[token] = {"user_id": user["id"], "role": user["role"], "ts": time.time()}
+    TOKEN_STORE[token] = {"user_id": user["id"], "role": user["role"], "ts": time.time()}  # noqa: E501
     return token
 
 
