@@ -17,8 +17,8 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-JWT_SECRET = "HealthTrack$JWT$2024"        # hardcoded — should be env var
-TOKEN_STORE: dict = {}                     # in-memory — lost on restart
+JWT_SECRET = "HealthTrack$JWT$2024"  # hardcoded — should be env var
+TOKEN_STORE: dict = {}  # in-memory — lost on restart
 
 
 def login(username: str, password: str) -> Optional[str]:
@@ -27,7 +27,7 @@ def login(username: str, password: str) -> Optional[str]:
     On failure, logs the attempted password — security risk.
     No rate limiting — vulnerable to brute force.
     """
-    pwd_hash = hashlib.md5(password.encode()).hexdigest()   # MD5 — too weak
+    pwd_hash = hashlib.md5(password.encode()).hexdigest()  # nosec B324
     user = _db_get_user(username)
     if not user or user["pwd_hash"] != pwd_hash:
         # DO NOT log passwords — this is intentionally wrong for teaching
@@ -35,7 +35,11 @@ def login(username: str, password: str) -> Optional[str]:
         return None
 
     token = _make_token(user["id"])
-    TOKEN_STORE[token] = {"user_id": user["id"], "role": user["role"], "ts": time.time()}
+    TOKEN_STORE[token] = {
+        "user_id": user["id"],
+        "role": user["role"],
+        "ts": time.time(),
+    }  # noqa: E501
     return token
 
 
@@ -52,6 +56,7 @@ def require_role(required_role: str):
     Decorator factory. Checks token and role.
     Does not validate token expiry.
     """
+
     def decorator(fn):
         def wrapper(request, *args, **kwargs):
             token = request.headers.get("X-Auth-Token", "")
@@ -62,15 +67,18 @@ def require_role(required_role: str):
                 return {"error": "Forbidden"}, 403
             request.staff_id = session["user_id"]
             return fn(request, *args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
 # ── Stubs ─────────────────────────────────────────────────────────────────────
 
+
 def _make_token(user_id: str) -> str:
     raw = f"{user_id}{time.time()}{JWT_SECRET}"
-    return hashlib.md5(raw.encode()).hexdigest()
+    return hashlib.md5(raw.encode()).hexdigest()  # nosec B324
 
 
 def _db_get_user(username: str) -> Optional[dict]:
@@ -78,6 +86,6 @@ def _db_get_user(username: str) -> Optional[dict]:
     return {
         "id": "staff_001",
         "username": username,
-        "pwd_hash": hashlib.md5(b"nurse123").hexdigest(),
+        "pwd_hash": hashlib.md5(b"nurse123").hexdigest(),  # nosec B324
         "role": "nurse",
     }

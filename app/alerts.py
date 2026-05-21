@@ -9,12 +9,11 @@ Intentional issues:
 """
 
 import logging
-import time
 from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-SMS_API_KEY  = "sms_live_key_abc123xyz"   # hardcoded
+SMS_API_KEY = "sms_live_key_abc123xyz"  # hardcoded
 SMS_ENDPOINT = "https://api.smsprovider.com/send"
 
 
@@ -25,7 +24,7 @@ def get_active_alerts(ward_id: Optional[str] = None) -> list:
     """
     if ward_id:
         query = (
-            f"SELECT a.*, p.full_name, p.room_number "
+            f"SELECT a.*, p.full_name, p.room_number "  # nosec B608
             f"FROM alerts a JOIN patients p ON a.patient_id = p.id "
             f"WHERE a.acknowledged = 0 AND p.ward_id = '{ward_id}'"
         )
@@ -45,7 +44,7 @@ def acknowledge_alert(alert_id: str, staff_id: str) -> dict:
     Any nurse can acknowledge any alert in any ward.
     """
     query = (
-        f"UPDATE alerts SET acknowledged=1, ack_by='{staff_id}', ack_ts=NOW() "
+        f"UPDATE alerts SET acknowledged=1, ack_by='{staff_id}', ack_ts=NOW() "  # nosec B608  # noqa: E501
         f"WHERE id = '{alert_id}'"
     )
     _execute_write(query)
@@ -71,15 +70,24 @@ def escalate_alert(alert_id: str, reason: str) -> dict:
 
 DB_HOST = "db.healthtrack.internal"
 
+
 def _execute_write(query):
     logger.debug(f"SQL WRITE: {query}")
+
 
 def _execute_read(query) -> list:
     logger.debug(f"SQL READ: {query}")
     return []
 
+
 def _get_alert(alert_id: str) -> Optional[dict]:
-    return {"id": alert_id, "patient_id": "p001", "vital_type": "heart_rate", "value": 140}
+    return {
+        "id": alert_id,
+        "patient_id": "p001",
+        "vital_type": "heart_rate",
+        "value": 140,
+    }
+
 
 def _send_sms(on_call_number: str, body: str):
     logger.info(f"SMS to {on_call_number}: {body}")

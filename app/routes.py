@@ -2,14 +2,15 @@
 app/routes.py
 Flask route definitions for HealthTrack API.
 """
+
 from flask import Blueprint, request, jsonify
 from .vitals import record_vitals, get_patient_vitals, get_vital_trend
 from .alerts import get_active_alerts, acknowledge_alert, escalate_alert
 from .auth import validate_token
 
-vitals_bp   = Blueprint("vitals",   __name__, url_prefix="/vitals")
+vitals_bp = Blueprint("vitals", __name__, url_prefix="/vitals")
 patients_bp = Blueprint("patients", __name__, url_prefix="/patients")
-alerts_bp   = Blueprint("alerts",   __name__, url_prefix="/alerts")
+alerts_bp = Blueprint("alerts", __name__, url_prefix="/alerts")
 
 
 def _get_staff_id(req) -> str | None:

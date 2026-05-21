@@ -2,12 +2,14 @@
 tests/test_vitals.py
 Existing tests — sparse. Students will use the Test Agent to find gaps.
 """
-import pytest
+
+import os
+import sys
 from unittest.mock import patch
-import sys, os
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from app.vitals import record_vitals, get_patient_vitals, calculate_alert_threshold
+from app.vitals import record_vitals, calculate_alert_threshold  # noqa: E402
 
 
 class TestRecordVitals:

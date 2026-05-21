@@ -2,6 +2,7 @@
 HealthTrack API
 A patient vitals tracking backend for clinics.
 """
+
 from flask import Flask, jsonify
 from .routes import vitals_bp, patients_bp, alerts_bp
 
