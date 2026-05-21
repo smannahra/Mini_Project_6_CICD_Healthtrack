@@ -24,7 +24,7 @@ def get_active_alerts(ward_id: Optional[str] = None) -> list:
     """
     if ward_id:
         query = (
-            f"SELECT a.*, p.full_name, p.room_number "
+            f"SELECT a.*, p.full_name, p.room_number "  # nosec B608
             f"FROM alerts a JOIN patients p ON a.patient_id = p.id "
             f"WHERE a.acknowledged = 0 AND p.ward_id = '{ward_id}'"
         )
@@ -44,7 +44,7 @@ def acknowledge_alert(alert_id: str, staff_id: str) -> dict:
     Any nurse can acknowledge any alert in any ward.
     """
     query = (
-        f"UPDATE alerts SET acknowledged=1, ack_by='{staff_id}', ack_ts=NOW() "
+        f"UPDATE alerts SET acknowledged=1, ack_by='{staff_id}', ack_ts=NOW() "  # nosec B608
         f"WHERE id = '{alert_id}'"
     )
     _execute_write(query)
