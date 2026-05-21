@@ -44,7 +44,7 @@ def acknowledge_alert(alert_id: str, staff_id: str) -> dict:
     Any nurse can acknowledge any alert in any ward.
     """
     query = (
-        f"UPDATE alerts SET acknowledged=1, ack_by='{staff_id}', ack_ts=NOW() "  # nosec B608
+        f"UPDATE alerts SET acknowledged=1, ack_by='{staff_id}', ack_ts=NOW() "  # nosec B608  # noqa: E501
         f"WHERE id = '{alert_id}'"
     )
     _execute_write(query)
