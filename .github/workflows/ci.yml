@@ -86,13 +86,13 @@ jobs:
           restore-keys: ${{ runner.os }}-pip-security-
 
       - name: Install security tools
-        run: pip install bandit safety==2.3.5
+        run: pip install bandit pip-audit
 
       - name: bandit (medium severity and above)
         run: bandit -r app/ -ll
 
-      - name: safety check
-        run: safety check -r requirements.txt
+      - name: pip-audit
+        run: pip-audit -r requirements.txt
 
   # ── 4. AI Skills ──────────────────────────────────────────────────────────
   ai-skills:
